@@ -1,37 +1,32 @@
 import sys
 import json
-import urllib
+import urllib.request
 
-from PyQt5 import QtWidgets, QtCore
+from json_widgets import JSONWidget
+from PyQt5 import QtWidgets, QtCore, QtWebKitWidgets
 
 
-j = json.loads('{"one": "1", "two": "2", "three": "3"}')
-
-# Emma told me this works.... in python2 :(
-# json.loads(' '.join(urllib2.urlopen(URL).readlines()))
-
-class JSONWidget(QtWidgets.QTableWidget):
+class MyWebView(QtWebKitWidgets.QWebView):
     def __init__(self, parent=None, *args, **kwargs):
-        super(JSONWidget, self).__init__(parent, *args, **kwargs)
-"""
-url = None
-headers = {"User-Agent":"alexthenicefontguy:foobar"}
-request = urllib.request.Request(url, headers=headers)
-a_thing = urllib.request(request) 
-"""
+        super(MyWebView, self).__init__(parent, *args, **kwargs)
+
+    @QtCore.pyqtSlot(QtCore.QUrl)
+    def url_slot(self, url):
+        self.load(url)
+
 app = QtWidgets.QApplication(sys.argv)
 main_window = QtWidgets.QMainWindow()
 
 json_widget = JSONWidget(parent=main_window)
-json_widget.setRowCount(len(j))
-json_widget.setColumnCount(2)
-json_widget.setHorizontalHeaderLabels(["Key", "Value"])
+webkit_view = MyWebView()
+json_widget.url_signal.connect(webkit_view.url_slot)
 
-for index, (key, value) in enumerate(j.items()):
-    json_widget.setItem(index, 0, QtWidgets.QTableWidgetItem(key))
-    json_widget.setItem(index, 1, QtWidgets.QTableWidgetItem(value))
+horizontal_layout = QtWidgets.QHBoxLayout()
+horizontal_layout.addWidget(json_widget)
+horizontal_layout.addWidget(webkit_view)
+layout_widget = QtWidgets.QWidget()
+layout_widget.setLayout(horizontal_layout)
 
-main_window.setCentralWidget(json_widget)
+main_window.setCentralWidget(layout_widget)
 main_window.show()
-
 sys.exit(app.exec_())

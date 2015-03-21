@@ -3,6 +3,50 @@ import json
 import urllib.request
 from collections import OrderedDict
 
+def get_data(url):
+    request = urllib.request.urlopen(url)
+    encoding = request.headers.get_content_charset()
+    if encoding is None:
+        encoding = 'utf-8'
+    return json.loads(request.read().decode(encoding))
+
+def parse_data_simply(kls, data):
+    kls._count = data['count']
+    kls._next = data['next']
+    kls._previous = data['previous']
+
+    return data['results']
+
+
+class JSONTreeWidget(QtWidgets.QTreeWidget):
+    def __init__(self, parent=None, *args, **kwargs):
+        super(JSONTreeWidget, self).__init__(parent, *args, **kwargs)
+        data = get_data("http://127.0.0.1:8000/projects/")
+        self.results = parse_data_simply(self, data)
+        self._store_results_in_widget(self.results)
+
+    def _store_results_in_widget(self, results_list_of_dicts):
+        for list_index, results_dict in enumerate(results_list_of_dicts):
+            string_list = [results_dict['title'],]
+            top_level_item = QtWidgets.QTreeWidgetItem(string_list)
+
+            description_list = ["Description: {}".format(results_dict['description']),]
+            description_item = QtWidgets.QTreeWidgetItem(top_level_item, description_list)
+
+            sub_string_list = ["User: {}".format(results_dict['user']),]
+            user_item = QtWidgets.QTreeWidgetItem(top_level_item, sub_string_list)
+
+            status_list = ["Status: {}".format(results_dict['status']),]
+            status_item = QtWidgets.QTreeWidgetItem(top_level_item, status_list)
+
+            self.addTopLevelItem(top_level_item)
+            # TODO: Future functionality: parse individual projects on open
+
+"""
+title | description ^
+"""
+
+
 class JSONWidget(QtWidgets.QTableWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)
@@ -58,7 +102,7 @@ class JSONWidget(QtWidgets.QTableWidget):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    widget = JSONWidget()
+    widget = JSONTreeWidget()
     widget.show()
     sys.exit(app.exec_())
 

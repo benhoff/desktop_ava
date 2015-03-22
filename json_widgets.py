@@ -17,13 +17,16 @@ def parse_data_simply(kls, data):
 
     return data['results']
 
-
 class JSONTreeWidget(QtWidgets.QTreeWidget):
+
+    url_signal = QtCore.pyqtSignal(QtCore.QUrl)
+    
     def __init__(self, parent=None, *args, **kwargs):
         super(JSONTreeWidget, self).__init__(parent, *args, **kwargs)
         data = get_data("http://127.0.0.1:8000/projects/")
         self.results = parse_data_simply(self, data)
         self._store_results_in_widget(self.results)
+        self.doubleClicked.connect(self.cell_double_clicked_slot)
 
     def _store_results_in_widget(self, results_list_of_dicts):
         for list_index, results_dict in enumerate(results_list_of_dicts):
@@ -40,13 +43,12 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
             status_item = QtWidgets.QTreeWidgetItem(top_level_item, status_list)
 
             self.addTopLevelItem(top_level_item)
-            # TODO: Future functionality: parse individual projects on open
 
-"""
-title | description ^
-"""
-
-
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    def cell_double_clicked_slot(self, model_index):    
+        line_dict = self.results[model_index.row()]
+        self.url_signal.emit(QtCore.QUrl(line_dict['url']))
+                
 class JSONTableWidget(QtWidgets.QTableWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)
@@ -83,8 +85,8 @@ class JSONTableWidget(QtWidgets.QTableWidget):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    #widget = JSONTreeWidget()
-    widget = JSONWidget()
+    widget = JSONTreeWidget()
+    #widget = JSONTableWidget()
     widget.show()
     sys.exit(app.exec_())
 

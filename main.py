@@ -2,7 +2,7 @@ import sys
 import json
 import urllib.request
 
-from json_widgets import JSONWidget
+from json_widgets import JSONTableWidget, JSONTreeWidget
 from PyQt5 import QtWidgets, QtCore, QtWebKitWidgets
 
 
@@ -14,19 +14,21 @@ class MyWebView(QtWebKitWidgets.QWebView):
     def url_slot(self, url):
         self.load(url)
 
-app = QtWidgets.QApplication(sys.argv)
-main_window = QtWidgets.QMainWindow()
 
-json_widget = JSONWidget(parent=main_window)
-webkit_view = MyWebView()
-json_widget.url_signal.connect(webkit_view.url_slot)
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    main_window = QtWidgets.QMainWindow()
 
-horizontal_layout = QtWidgets.QHBoxLayout()
-horizontal_layout.addWidget(json_widget)
-horizontal_layout.addWidget(webkit_view)
-layout_widget = QtWidgets.QWidget()
-layout_widget.setLayout(horizontal_layout)
+    json_widget = JSONTreeWidget(parent=main_window)
+    webkit_view = MyWebView()
+    json_widget.url_signal.connect(webkit_view.url_slot)
 
-main_window.setCentralWidget(layout_widget)
-main_window.show()
-sys.exit(app.exec_())
+    horizontal_layout = QtWidgets.QHBoxLayout()
+    horizontal_layout.addWidget(json_widget)
+    horizontal_layout.addWidget(webkit_view)
+    layout_widget = QtWidgets.QWidget()
+    layout_widget.setLayout(horizontal_layout)
+
+    main_window.setCentralWidget(layout_widget)
+    main_window.show()
+    sys.exit(app.exec_())

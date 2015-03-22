@@ -20,7 +20,8 @@ def parse_data_simply(kls, data):
 class JSONTreeWidget(QtWidgets.QTreeWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)
-    
+    USER_ROW_INDEX = 1
+
     def __init__(self, parent=None, *args, **kwargs):
         super(JSONTreeWidget, self).__init__(parent, *args, **kwargs)
         data = get_data("http://127.0.0.1:8000/projects/")
@@ -46,8 +47,14 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
 
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def cell_double_clicked_slot(self, model_index):    
-        line_dict = self.results[model_index.row()]
-        self.url_signal.emit(QtCore.QUrl(line_dict['url']))
+        if model_index.parent() == QtCore.QModelIndex():
+            line_dict = self.results[model_index.row()]
+            self.url_signal.emit(QtCore.QUrl(line_dict['url']))
+        else:
+            if model_index.row() == self.USER_ROW_INDEX:
+                parent_row = model_index.parent().row()
+                line_dict = self.results[parent_row]
+                self.url_signal.emit(QtCore.QUrl(line_dict['user']))
                 
 class JSONTableWidget(QtWidgets.QTableWidget):
 

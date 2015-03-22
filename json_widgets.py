@@ -47,41 +47,22 @@ title | description ^
 """
 
 
-class JSONWidget(QtWidgets.QTableWidget):
+class JSONTableWidget(QtWidgets.QTableWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)
     NUM_OBJS_IN_PROJ = 5
 
     def __init__(self, parent=None, *args, **kwargs):
         super(JSONWidget, self).__init__(parent, *args, **kwargs)
-        self._count = None
-        self._next = None
-        self._previous = None
-
-        self.results = self._get_and_parse_data()
-        #print(self.results)
+        
+        data = get_data("http://127.0.0.1:8000/projects/")
+        self.results = parse_data_simply(self, data)
         self.setRowCount(len(self.results)*self.NUM_OBJS_IN_PROJ)
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Key", "Value"])
         self._set_up_data(self.results)
         self.cellDoubleClicked.connect(self.cell_double_clicked_slot)
         
-    def _get_and_parse_data(self):
-        # s3.amazonaws.com/Minecraft.Download/versions/versions.json
-        url = "http://127.0.0.1:8000/projects/"
-        request = urllib.request.urlopen(url)
-        encoding = request.headers.get_content_charset()
-        if encoding is None:
-            print("There was no encoding!")
-            data = json.loads(request.read().decode('utf-8'))
-        else:
-            data = json.loads(request.read().decode(encoding))
-        self._count = data['count']
-        self._next = data['next']
-        self._previous = data['previous']
-
-        return data['results']
-
     def _set_up_data(self, data):
         for results_index, results_dict in enumerate(self.results):
             for dict_index, (key, value) in enumerate(results_dict.items()):
@@ -102,7 +83,8 @@ class JSONWidget(QtWidgets.QTableWidget):
 if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    widget = JSONTreeWidget()
+    #widget = JSONTreeWidget()
+    widget = JSONWidget()
     widget.show()
     sys.exit(app.exec_())
 

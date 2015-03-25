@@ -37,11 +37,14 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
             description_list = ["Description: {}".format(results_dict['description']),]
             description_item = QtWidgets.QTreeWidgetItem(top_level_item, description_list)
 
-            sub_string_list = ["User: {}".format(results_dict['user']),]
+            sub_string_list = ["User: {}".format(results_dict['ownername']),]
             user_item = QtWidgets.QTreeWidgetItem(top_level_item, sub_string_list)
 
             status_list = ["Status: {}".format(results_dict['status']),]
             status_item = QtWidgets.QTreeWidgetItem(top_level_item, status_list)
+            
+            ideas_count_list = ["Idea Count: {}".format(results_dict['ideas_count'])]
+            ideas_count_item = QtWidgets.QTreeWidgetItem(top_level_item, ideas_count_list)
 
             self.addTopLevelItem(top_level_item)
 
@@ -54,7 +57,7 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
             if model_index.row() == self.USER_ROW_INDEX:
                 parent_row = model_index.parent().row()
                 line_dict = self.results[parent_row]
-                self.url_signal.emit(QtCore.QUrl(line_dict['user']))
+                self.url_signal.emit(QtCore.QUrl(line_dict['owner_url']))
                 
 class JSONTableWidget(QtWidgets.QTableWidget):
 

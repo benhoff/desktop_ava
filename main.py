@@ -22,7 +22,7 @@ if __name__ == '__main__':
     json_widget = JSONTreeWidget(parent=main_window)
     webkit_view = MyWebView()
     json_widget.url_signal.connect(webkit_view.url_slot)
-
+    
     horizontal_layout = QtWidgets.QHBoxLayout()
     horizontal_layout.addWidget(json_widget)
     horizontal_layout.addWidget(webkit_view)

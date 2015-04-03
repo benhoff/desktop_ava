@@ -1,14 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
-import json
-import urllib.request
 from collections import OrderedDict
 
-def get_data(url):
-    request = urllib.request.urlopen(url)
-    encoding = request.headers.get_content_charset()
-    if encoding is None:
-        encoding = 'utf-8'
-    return json.loads(request.read().decode(encoding))
 
 def parse_data_simply(kls, data):
     kls._count = data['count']
@@ -21,6 +13,7 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)
     USER_ROW_INDEX = 1
+    IDEA_ROW_INDEX = 3
 
     def __init__(self, parent=None, *args, **kwargs):
         super(JSONTreeWidget, self).__init__(parent, *args, **kwargs)
@@ -54,11 +47,17 @@ class JSONTreeWidget(QtWidgets.QTreeWidget):
             line_dict = self.results[model_index.row()]
             self.url_signal.emit(QtCore.QUrl(line_dict['url']))
         else:
+        
+            project_dict = self._get_project_dic_from_child_model_index(model_index)
             if model_index.row() == self.USER_ROW_INDEX:
-                parent_row = model_index.parent().row()
-                line_dict = self.results[parent_row]
-                self.url_signal.emit(QtCore.QUrl(line_dict['owner_url']))
-                
+                self.url_signal.emit(QtCore.QUrl(project_dict['owner_url']))
+            elif model_index.row() == self.IDEA_ROW_INDEX:
+                self.url_signal.emit(QtCore.QUrl(project_dict['idea_list_url']))
+
+    def _get_project_dic_from_child_model_index(self, model_index):
+        parent_row = model_index.parent().row()
+        return self.results[parent_row]
+
 class JSONTableWidget(QtWidgets.QTableWidget):
 
     url_signal = QtCore.pyqtSignal(QtCore.QUrl)

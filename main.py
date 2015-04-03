@@ -1,7 +1,7 @@
 import sys
 import json
 import urllib.request
-
+from json_parser.py import JSONParser
 from json_widgets import JSONTableWidget, JSONTreeWidget
 from PyQt5 import QtWidgets, QtCore, QtWebKitWidgets
 
